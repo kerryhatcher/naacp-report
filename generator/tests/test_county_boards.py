@@ -32,3 +32,25 @@ def test_build_writes_list_and_detail_json(tmp_path):
     assert detail["slug"] == "fulton"
     assert detail["meeting_schedule"] == "First Tuesday monthly"
     assert "<p>" in detail["body_html"]
+
+
+def test_parse_county_sanitizes_dangerous_html(tmp_path):
+    md = tmp_path / "evil.md"
+    md.write_text(
+        "---\n"
+        "county: Evil\n"
+        "members: 1\n"
+        "selection_method: appointed\n"
+        "---\n"
+        "Legit text.\n\n"
+        "<script>alert('xss')</script>\n\n"
+        '<img src=x onerror="alert(1)">\n'
+    )
+
+    county = county_boards.parse_county(md)
+
+    # Sanitized: no script tag, no inline event handler survives
+    assert "<script>" not in county["body_html"]
+    assert "onerror" not in county["body_html"]
+    # Legitimate content is preserved
+    assert "Legit text." in county["body_html"]

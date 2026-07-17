@@ -3,6 +3,7 @@ from pathlib import Path
 
 import frontmatter
 import markdown
+import nh3
 
 CONTENT_DIR = Path(__file__).parent.parent / "content" / "county-boards"
 OUTPUT_DIR = Path(__file__).parent.parent.parent / "web" / "public" / "data"
@@ -16,7 +17,7 @@ def parse_county(md_path: Path) -> dict:
         "members": post.get("members"),
         "selection_method": post.get("selection_method"),
         "meeting_schedule": post.get("meeting_schedule"),
-        "body_html": markdown.markdown(post.content),
+        "body_html": nh3.clean(markdown.markdown(post.content)),
     }
 
 

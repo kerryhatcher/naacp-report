@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import DOMPurify from 'dompurify'
 import { useParams } from 'react-router-dom'
 import { fetchCounty } from '../lib/api'
 
@@ -24,7 +25,7 @@ export function CountyDetail() {
         <dt className="font-semibold">Meeting schedule</dt>
         <dd>{data!.meeting_schedule ?? '—'}</dd>
       </dl>
-      <div className="mt-4 prose" dangerouslySetInnerHTML={{ __html: data!.body_html }} />
+      <div className="mt-4 prose" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data!.body_html) }} />
     </div>
   )
 }
