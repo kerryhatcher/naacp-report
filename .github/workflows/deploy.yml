@@ -1,8 +1,10 @@
 name: Deploy report site
 
+# Manual trigger only until the GitHub Pages hosting URL is chosen and the
+# base-path / SPA-fallback items in web/README.md's pre-deploy checklist are
+# wired up. Switch back to `push: branches: [main]` once that's done.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,7 +31,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install web dependencies
         working-directory: web

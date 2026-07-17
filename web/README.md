@@ -31,15 +31,18 @@ npm run build
 
 ## Pre-deploy checklist (hosting-URL dependent)
 
-These three items are **not** wired up yet because they depend on the final
-GitHub Pages URL. Once that URL is chosen, all three MUST change together —
-doing only one will break routing or asset loading:
+The deploy workflow (`.github/workflows/deploy.yml`) is set to **manual trigger
+only** (`workflow_dispatch`) so merging to `main` doesn't auto-publish a site
+before hosting is configured. Once the final GitHub Pages URL is chosen, wire up
+the items below, then switch the workflow trigger back to `push: branches: [main]`.
 
 1. **Set Vite `base`** in `vite.config.ts` (e.g. `/naacp-report/` for a
-   project page).
+   project page). Use an *absolute* base like `/naacp-report/`, not a relative
+   `./` — a relative base breaks asset/data resolution on nested BrowserRouter
+   routes such as `/counties/fulton`.
 2. **Add an SPA deep-link fallback** — a `404.html` copy of `index.html`
    (or switch to `HashRouter` / set a router `basename`) — so routes like
    `/counties/fulton` work on direct load instead of 404ing.
-3. **Update `src/lib/api.ts`** — it currently fetches *absolute* paths
-   (`/data/...`), which 404 under a project subpath. Make them base-relative
-   at the same time, e.g. `` `${import.meta.env.BASE_URL}data/counties.json` ``.
+3. ~~**Update `src/lib/api.ts`** to fetch base-relative paths.~~ ✅ **Done** —
+   `getJson` now prepends `import.meta.env.BASE_URL`, so fetches automatically
+   honor whatever Vite `base` is set in step 1, with no further code change.
