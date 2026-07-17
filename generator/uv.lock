@@ -2,12 +2,6 @@ version = 1
 revision = 3
 requires-python = ">=3.13"
 
-[manifest]
-members = [
-    "naacp-report",
-    "naacp-report-generator",
-]
-
 [[package]]
 name = "colorama"
 version = "0.4.6"
@@ -36,14 +30,9 @@ wheels = [
 ]
 
 [[package]]
-name = "naacp-report"
-version = "0.1.0"
-source = { virtual = "." }
-
-[[package]]
 name = "naacp-report-generator"
 version = "0.1.0"
-source = { virtual = ".claude/worktrees/report-data-pipeline-react-spa/generator" }
+source = { virtual = "." }
 dependencies = [
     { name = "markdown" },
     { name = "python-frontmatter" },
