@@ -1,0 +1,8 @@
+{
+  "slug": "testville",
+  "name": "Testville",
+  "members": 5,
+  "selection_method": "Appointed",
+  "meeting_schedule": "First Tuesday monthly",
+  "body_html": "<p>Board overview.</p>"
+}
