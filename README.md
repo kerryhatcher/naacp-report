@@ -56,3 +56,5 @@ Demographic breakdown of registered voters, with the ability to filter and compa
 
 Raw data files that contain or could be joined to reveal PII (the voter registration list, voter history file, and any derived extracts with individual-level records) go in [`sensitive-data/`](sensitive-data/README.md), which is git-ignored. Only de-identified, aggregated outputs (e.g. county-level turnout percentages, demographic summary tables) are committed to the repo.
 
+Non-PII research — source lists, meeting schedule notes, official turnout/results reports, news clippings, aggregated public data — goes in [`docs/research/`](docs/research/README.md), which is tracked normally in git.
+
