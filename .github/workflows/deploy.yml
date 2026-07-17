@@ -1,9 +1,8 @@
 name: Deploy report site
 
-# Manual trigger only until the GitHub Pages hosting URL is chosen and the
-# base-path / SPA-fallback items in web/README.md's pre-deploy checklist are
-# wired up. Switch back to `push: branches: [main]` once that's done.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 # Least privilege: only `contents: read` at the workflow level; the deploy job
@@ -26,7 +25,15 @@ jobs:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Generator tests and lint
+        working-directory: generator
+        run: |
+          uv run pytest
+          uv run ruff check .
 
       - name: Build report data
         working-directory: generator
@@ -36,10 +43,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
 
       - name: Install web dependencies
         working-directory: web
         run: npm ci
+
+      - name: Web tests and typecheck
+        working-directory: web
+        run: |
+          npm test
+          npm run check
 
       - name: Build web app
         working-directory: web

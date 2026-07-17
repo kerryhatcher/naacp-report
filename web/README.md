@@ -1,48 +1,56 @@
-# web
+# Report Site (`web/`)
 
-The React (Vite + TypeScript + Tailwind + React Router + TanStack Query) SPA
-that renders the report from static JSON produced by [`generator/`](../generator/README.md).
+Astro static site for the NAACP Georgia Elections Report. Pages are generated
+at build time from the JSON that `generator/` writes into `public/data/`
+(gitignored). See `docs/decisions/0001-astro-ssg-with-react-islands.md` for
+why this is an Astro SSG rather than a SPA.
 
-## Dev workflow
+## Development
 
-1. Regenerate the data the app reads:
-   ```sh
-   cd ../generator && uv run build.py
-   ```
-2. Install dependencies (first time only):
-   ```sh
-   npm install
-   ```
-3. Start the dev server:
-   ```sh
-   npm run dev
-   ```
+Generate the data first (the build reads it from disk):
 
-`public/data/` is a build artifact produced by the generator — it's
-git-ignored, not hand-authored. The app fetches its contents at runtime
-(`src/lib/api.ts`) as if it were a REST API, but it's really just static
-JSON files.
-
-## Build
-
-```sh
-npm run build
+```bash
+cd ../generator && uv run build.py
 ```
 
-## Pre-deploy checklist (hosting-URL dependent)
+Then:
 
-The deploy workflow (`.github/workflows/deploy.yml`) is set to **manual trigger
-only** (`workflow_dispatch`) so merging to `main` doesn't auto-publish a site
-before hosting is configured. Once the final GitHub Pages URL is chosen, wire up
-the items below, then switch the workflow trigger back to `push: branches: [main]`.
+```bash
+npm install
+npm run dev        # serves at http://localhost:4321/naacp-report/
+```
 
-1. **Set Vite `base`** in `vite.config.ts` (e.g. `/naacp-report/` for a
-   project page). Use an *absolute* base like `/naacp-report/`, not a relative
-   `./` — a relative base breaks asset/data resolution on nested BrowserRouter
-   routes such as `/counties/fulton`.
-2. **Add an SPA deep-link fallback** — a `404.html` copy of `index.html`
-   (or switch to `HashRouter` / set a router `basename`) — so routes like
-   `/counties/fulton` work on direct load instead of 404ing.
-3. ~~**Update `src/lib/api.ts`** to fetch base-relative paths.~~ ✅ **Done** —
-   `getJson` now prepends `import.meta.env.BASE_URL`, so fetches automatically
-   honor whatever Vite `base` is set in step 1, with no further code change.
+Note the `/naacp-report/` base path — the dev server mirrors the GitHub Pages
+project-page URL. Internal links must use the `href()` helper in
+`src/lib/url.ts`, which prefixes the configured base.
+
+## Scripts
+
+| Script            | What it does                              |
+| ----------------- | ----------------------------------------- |
+| `npm run dev`     | Dev server with live reload               |
+| `npm run build`   | Static build to `dist/`                   |
+| `npm run preview` | Serve the production build locally        |
+| `npm run check`   | Astro/TypeScript typecheck                |
+| `npm test`        | Vitest unit tests (`src/tests/`)          |
+
+## Structure
+
+- `src/lib/data.ts` — reads `public/data/*.json` at build time; the only
+  place that touches the generator's output contract.
+- `src/pages/counties/[slug].astro` — one static page per county via
+  `getStaticPaths`.
+- `src/layouts/Layout.astro` — shared head/nav/`<main>`; takes a `title` prop.
+- React islands (maps/charts) are supported via `@astrojs/react` but none
+  exist yet — turnout and demographics are placeholder pages.
+
+## Deployment
+
+`.github/workflows/deploy.yml` runs tests, builds data + site, and deploys to
+GitHub Pages on push to `main`. Hosted at
+`https://kerryhatcher.github.io/naacp-report/` (`site` + `base` in
+`astro.config.mjs`). If a custom domain is added later, change those two
+values and nothing else.
+
+`body_html` is sanitized once, at generation time, with `nh3` — the report
+renders it via `set:html` without re-sanitizing (ADR 0001).
