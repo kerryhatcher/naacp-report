@@ -1,0 +1,30 @@
+---
+import { getCounties } from '../lib/data'
+import { href } from '../lib/url'
+
+const counties = await getCounties()
+---
+
+<h1 class="text-2xl font-bold mb-4">County Boards of Elections</h1>
+<table class="w-full border-collapse">
+  <thead>
+    <tr class="text-left border-b">
+      <th class="py-2">County</th>
+      <th class="py-2">Members</th>
+      <th class="py-2">Selection Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    {counties.map((county) => (
+      <tr class="border-b">
+        <td class="py-2">
+          <a class="text-blue-600 underline" href={href(`/counties/${county.slug}`)}>
+            {county.name}
+          </a>
+        </td>
+        <td class="py-2">{county.members ?? '—'}</td>
+        <td class="py-2">{county.selection_method ?? '—'}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>

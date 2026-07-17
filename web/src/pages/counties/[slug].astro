@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { getCounties, getCounty, type CountyDetail } from '../../lib/data'
+
+export async function getStaticPaths() {
+  const counties = await getCounties()
+  return Promise.all(
+    counties.map(async ({ slug }) => ({
+      params: { slug },
+      props: { county: await getCounty(slug) },
+    })),
+  )
+}
+
+interface Props {
+  county: CountyDetail
+}
+
+const { county } = Astro.props
+---
+
+<Layout title={`${county.name} County Board of Elections`}>
+  <h1 class="text-2xl font-bold">{county.name} County Board of Elections</h1>
+  <dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
+    <dt class="font-semibold">Members</dt>
+    <dd>{county.members ?? '—'}</dd>
+    <dt class="font-semibold">Selection method</dt>
+    <dd>{county.selection_method ?? '—'}</dd>
+    <dt class="font-semibold">Meeting schedule</dt>
+    <dd>{county.meeting_schedule ?? '—'}</dd>
+  </dl>
+  <div class="mt-4 prose" set:html={county.body_html} />
+</Layout>

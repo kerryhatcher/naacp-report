@@ -1,0 +1,39 @@
+---
+import '../styles/global.css'
+import { href } from '../lib/url'
+
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+
+const navLinks = [
+  { to: href('/counties'), label: 'County Boards' },
+  { to: href('/turnout'), label: 'Turnout' },
+  { to: href('/demographics'), label: 'Demographics' },
+]
+const current = Astro.url.pathname
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href={href('/favicon.svg')} />
+    <title>{title} · NAACP Georgia Elections Report</title>
+  </head>
+  <body>
+    <nav class="p-4 border-b flex gap-4">
+      {navLinks.map(({ to, label }) => (
+        <a href={to} class={current.startsWith(to) ? 'font-semibold underline' : 'text-blue-600'}>
+          {label}
+        </a>
+      ))}
+    </nav>
+    <main class="p-4">
+      <slot />
+    </main>
+  </body>
+</html>
