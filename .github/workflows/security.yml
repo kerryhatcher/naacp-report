@@ -161,10 +161,14 @@ jobs:
           L=$(printf '%s' "$U" | tr '[:upper:]' '[:lower:]')
           T="Na""acp"
           printf 'deny_list = ["%s", "%s", "%s"]\n' "$U" "$L" "$T" > "$RUNNER_TEMP/cloakrs-ci.toml"
+          rc=0
           "$RUNNER_TEMP/bin/cloakrs" audit . \
             --recursive --respect-gitignore \
             --config "$RUNNER_TEMP/cloakrs-ci.toml" \
-            --output-format json --output "$RUNNER_TEMP/cloakrs.json"
+            --output-format json --output "$RUNNER_TEMP/cloakrs.json" || rc=$?
+          # Exit 1 just means findings were written (gated below); >=2 is a
+          # real runtime error.
+          if [ "$rc" -ge 2 ]; then exit "$rc"; fi
           jq '{total_findings, findings_by_type}' "$RUNNER_TEMP/cloakrs.json"
           count=$(jq '[.files[]
               | select(.path | test("(^|/)(package-lock\\.json|uv\\.lock)$") | not)
