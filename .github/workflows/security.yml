@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 
-# Seven scanners run in parallel. Each fails its job on findings.
+# Eight scanners run in parallel. Each fails its job on findings.
 # Scanners that support custom rules also carry an org-name rule
 # (pattern written as n[a]acp in configs so rule files don't match
 # themselves; see .github/security/).
@@ -137,6 +137,42 @@ jobs:
         # extra pattern, so matches are reported without a randomness test.
         run: |
           "$RUNNER_TEMP/bin/ripsecrets" --additional-pattern '(?i)n[a]acp'
+
+  cloakrs:
+    name: cloakrs (PII)
+    runs-on: ubuntu-latest
+    env:
+      CLOAKRS_VERSION: 0.3.0
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Install cloakrs
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -sSfL "https://github.com/kadir/cloakrs/releases/download/v${CLOAKRS_VERSION}/cloakrs-v${CLOAKRS_VERSION}-x86_64-unknown-linux-gnu.tar.gz" | tar xz -C "$RUNNER_TEMP/bin"
+      - name: Scan
+        # The org-name deny list is generated at runtime (case-sensitive
+        # literals, so common case variants are listed) and lives outside
+        # the checkout so the literal never appears in the repo. cloakrs
+        # exits 0 even with findings, so the gate is a jq count that skips
+        # lockfiles and benign-for-a-public-site types (Url, Hostname,
+        # UserPath).
+        run: |
+          U="NA""ACP"
+          L=$(printf '%s' "$U" | tr '[:upper:]' '[:lower:]')
+          T="Na""acp"
+          printf 'deny_list = ["%s", "%s", "%s"]\n' "$U" "$L" "$T" > "$RUNNER_TEMP/cloakrs-ci.toml"
+          "$RUNNER_TEMP/bin/cloakrs" audit . \
+            --recursive --respect-gitignore \
+            --config "$RUNNER_TEMP/cloakrs-ci.toml" \
+            --output-format json --output "$RUNNER_TEMP/cloakrs.json"
+          jq '{total_findings, findings_by_type}' "$RUNNER_TEMP/cloakrs.json"
+          count=$(jq '[.files[]
+              | select(.path | test("(^|/)(package-lock\\.json|uv\\.lock)$") | not)
+              | .findings_by_type | to_entries[]
+              | select(.key | IN("Url","Hostname","UserPath") | not)
+              | .value] | add // 0' "$RUNNER_TEMP/cloakrs.json")
+          echo "gated findings: $count"
+          test "$count" -eq 0
 
   trufflehog:
     name: TruffleHog
