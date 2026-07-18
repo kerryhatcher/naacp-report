@@ -1,8 +1,78 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import CountiesList from '../components/CountiesList.astro'
+import { getCounties } from '../lib/data'
+import { href } from '../lib/url'
+
+const counties = await getCounties()
+
+const chapters = [
+  {
+    number: '01',
+    to: href('/counties'),
+    title: 'County Boards of Elections',
+    deck: 'Who sits on the 159 boards that run Georgia’s elections, how each one is chosen, and where and when they meet.',
+    status: `${counties.length} of 159 boards profiled`,
+  },
+  {
+    number: '02',
+    to: href('/turnout'),
+    title: 'Turnout in 2026',
+    deck: 'County-by-county turnout for every election held in Georgia this year — primaries, runoffs, and specials.',
+    status: 'Sample preview',
+  },
+  {
+    number: '03',
+    to: href('/demographics'),
+    title: 'Registered Voter Demographics',
+    deck: 'Who is on the rolls: race, age, and registration status of Georgia’s electorate, county by county.',
+    status: 'Sample preview',
+  },
+]
 ---
 
-<Layout title="County Boards of Elections">
-  <CountiesList />
+<Layout title="A County-by-County Investigation">
+  <section class="reveal max-w-3xl">
+    <p class="kicker text-accent">The report · 2026</p>
+    <h1 class="display-opt mt-4 text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">
+      Who runs Georgia&rsquo;s elections?
+    </h1>
+    <p class="mt-6 max-w-[42ch] text-xl leading-relaxed text-ink-2 sm:text-2xl">
+      Election administration in Georgia is decided county by county — by 159
+      boards appointed under 159 different local laws. This report documents
+      each one, and measures who turns out under their watch.
+    </p>
+    <p class="kicker mt-8 text-ink-2">Macon · Updated July 17, 2026</p>
+  </section>
+
+  <section class="reveal-late mt-16">
+    <div class="rule-headline pt-4">
+      <p class="kicker text-ink-2">Inside the report</p>
+    </div>
+
+    <div class="mt-6">
+      {
+        chapters.map(({ number, to, title, deck, status }) => (
+          <a
+            href={to}
+            class="group grid grid-cols-[3.5rem_1fr] items-baseline gap-x-4 border-b border-rule py-7 transition-colors hover:bg-paper-2 sm:grid-cols-[5rem_1fr_14rem]"
+          >
+            <span class="display-opt text-3xl text-ink-2 transition-colors group-hover:text-accent sm:text-4xl">
+              {number}
+            </span>
+            <span>
+              <span class="display-opt block text-2xl font-semibold leading-tight transition-colors group-hover:text-accent sm:text-3xl">
+                {title}
+              </span>
+              <span class="mt-2 block max-w-[52ch] font-sans text-sm leading-relaxed text-ink-2">
+                {deck}
+              </span>
+            </span>
+            <span class="kicker col-start-2 mt-3 text-ink-2 sm:col-start-3 sm:mt-0 sm:text-right">
+              {status} <span aria-hidden="true" class="text-accent">→</span>
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
 </Layout>

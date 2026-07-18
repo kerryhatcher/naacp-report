@@ -1,8 +1,120 @@
 ---
 import Layout from '../layouts/Layout.astro'
+
+// Bibb County rows are real aggregates computed from the Feb. 3, 2026 voter
+// file merged with 2026 vote-history records (see voterdata pipeline). Every
+// other figure on this page is a fabricated placeholder for design preview.
+const bibbRoll = 116198
+
+const elections = [
+  { date: 'Jan 20, 2026', name: 'Special Election', ballots: 6280, rate: 5.4 },
+  { date: 'Feb 17, 2026', name: 'Special Election Runoff', ballots: 7615, rate: 6.6 },
+  { date: 'Mar 17, 2026', name: 'Special Election', ballots: 1057, rate: 0.9 },
+]
+
+const countyRates = [
+  { county: 'Fulton', rate: 8.1, sample: true },
+  { county: 'Cherokee', rate: 7.7, sample: true },
+  { county: 'Cobb', rate: 7.4, sample: true },
+  { county: 'DeKalb', rate: 6.9, sample: true },
+  { county: 'Bibb', rate: 6.6, sample: false },
+  { county: 'Chatham', rate: 5.9, sample: true },
+  { county: 'Gwinnett', rate: 5.2, sample: true },
+  { county: 'Muscogee', rate: 4.8, sample: true },
+  { county: 'Lowndes', rate: 3.9, sample: true },
+]
+const maxRate = Math.max(...countyRates.map((c) => c.rate))
+
+const fmt = new Intl.NumberFormat('en-US')
 ---
 
-<Layout title="Turnout Rates">
-  <h1 class="text-2xl font-bold">Turnout Rates</h1>
-  <p class="mt-2 text-gray-600">Data coming soon.</p>
+<Layout
+  title="Turnout in 2026"
+  description="County-by-county voter turnout for every election held in Georgia in 2026 — primaries, runoffs, and special elections."
+>
+  <header class="reveal max-w-3xl">
+    <p class="kicker text-accent">Chapter 02 · Sample preview</p>
+    <h1 class="display-opt mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+      Turnout in 2026
+    </h1>
+    <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2 sm:text-xl">
+      Turnout rate by county for every election Georgia holds this year —
+      primaries, runoffs, and specials — measured against each county&rsquo;s
+      registered rolls. The pilot county is Bibb.
+    </p>
+  </header>
+
+  <section class="reveal-late mt-12">
+    <div class="rule-headline pt-4">
+      <p class="kicker text-ink-2">Bibb County · 2026 elections observed</p>
+    </div>
+    <div class="mt-6 overflow-x-auto">
+      <table class="table-report">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Election</th>
+            <th class="num">Ballots cast</th>
+            <th class="num">Of {fmt.format(bibbRoll)} registered</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            elections.map(({ date, name, ballots, rate }) => (
+              <tr>
+                <td class="whitespace-nowrap text-ink-2">{date}</td>
+                <td class="font-serif text-base font-semibold">{name}</td>
+                <td class="num">{fmt.format(ballots)}</td>
+                <td class="num font-semibold">{rate.toFixed(1)}%</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-4 max-w-[70ch] font-sans text-xs leading-relaxed text-ink-2">
+      Bibb County figures are aggregates computed from the Feb. 3, 2026 voter
+      file merged with 2026 vote-history records. Certified turnout reports
+      from the Secretary of State will replace them in the published edition.
+    </p>
+  </section>
+
+  <section class="mt-16">
+    <div class="rule-headline flex items-baseline justify-between pt-4">
+      <p class="kicker text-ink-2">Feb 17 runoff · rate by county</p>
+      <p class="kicker text-ink-2">Sample</p>
+    </div>
+    <div class="mt-6 overflow-x-auto">
+      <table class="table-report">
+        <thead>
+          <tr>
+            <th>County</th>
+            <th class="num">Rate</th>
+            <th class="w-1/2"><span class="sr-only">Chart</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            countyRates.map(({ county, rate, sample }) => (
+              <tr>
+                <td class="font-serif text-base font-semibold">
+                  {county}
+                  {sample && <span class="kicker ml-2 text-[0.55rem] text-ink-2">Fabricated</span>}
+                </td>
+                <td class="num font-semibold">{rate.toFixed(1)}%</td>
+                <td>
+                  <span class="databar" style={`width: ${(rate / maxRate) * 100}%`} />
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-4 max-w-[70ch] font-sans text-xs leading-relaxed text-ink-2">
+      Only the Bibb County row is derived from real records; all other rows are
+      fabricated to preview the layout. Statewide comparisons will cover all
+      159 counties.
+    </p>
+  </section>
 </Layout>

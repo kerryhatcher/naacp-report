@@ -5,26 +5,32 @@ import { href } from '../lib/url'
 const counties = await getCounties()
 ---
 
-<h1 class="text-2xl font-bold mb-4">County Boards of Elections</h1>
-<table class="w-full border-collapse">
+<table class="table-report">
   <thead>
-    <tr class="text-left border-b">
-      <th class="py-2">County</th>
-      <th class="py-2">Members</th>
-      <th class="py-2">Selection Method</th>
+    <tr>
+      <th>County</th>
+      <th class="num">Members</th>
+      <th>Selection method</th>
+      <th class="hidden sm:table-cell"><span class="sr-only">View</span></th>
     </tr>
   </thead>
   <tbody>
-    {counties.map((county) => (
-      <tr class="border-b">
-        <td class="py-2">
-          <a class="text-blue-600 underline" href={href(`/counties/${county.slug}`)}>
-            {county.name}
-          </a>
-        </td>
-        <td class="py-2">{county.members ?? '—'}</td>
-        <td class="py-2">{county.selection_method ?? '—'}</td>
-      </tr>
-    ))}
+    {
+      counties.map((county) => (
+        <tr>
+          <td>
+            <a
+              class="font-serif text-base font-semibold text-ink underline decoration-rule underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+              href={href(`/counties/${county.slug}`)}
+            >
+              {county.name}
+            </a>
+          </td>
+          <td class="num">{county.members ?? '—'}</td>
+          <td class="capitalize">{county.selection_method ?? '—'}</td>
+          <td class="hidden text-right text-accent sm:table-cell" aria-hidden="true">→</td>
+        </tr>
+      ))
+    }
   </tbody>
 </table>

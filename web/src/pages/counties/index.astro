@@ -1,8 +1,38 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 import CountiesList from '../../components/CountiesList.astro'
+import { getCounties } from '../../lib/data'
+
+const counties = await getCounties()
 ---
 
-<Layout title="County Boards of Elections">
-  <CountiesList />
+<Layout
+  title="County Boards of Elections"
+  description="A directory of Georgia’s 159 county boards of elections: members, selection method, and meeting schedule for each board."
+>
+  <header class="reveal max-w-3xl">
+    <p class="kicker text-accent">Chapter 01 · Directory</p>
+    <h1 class="display-opt mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+      County Boards of Elections
+    </h1>
+    <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2 sm:text-xl">
+      Each of Georgia&rsquo;s 159 boards is created by its own local act of the
+      General Assembly — there is no single state law that says who runs an
+      election. This directory documents every board, one county at a time.
+    </p>
+  </header>
+
+  <section class="reveal-late mt-12">
+    <div class="rule-headline flex items-baseline justify-between pt-4">
+      <p class="kicker text-ink-2">The boards</p>
+      <p class="kicker text-ink-2">{counties.length} of 159 profiled</p>
+    </div>
+    <div class="mt-6 overflow-x-auto">
+      <CountiesList />
+    </div>
+    <p class="mt-4 font-sans text-xs leading-relaxed text-ink-2">
+      Profiles are added as sourcing is verified against county records and
+      local acts. Entries currently shown are sample data for design preview.
+    </p>
+  </section>
 </Layout>

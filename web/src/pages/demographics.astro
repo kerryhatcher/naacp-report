@@ -1,8 +1,126 @@
 ---
 import Layout from '../layouts/Layout.astro'
+
+// All figures below are real aggregates computed from the Bibb County
+// Feb. 3, 2026 voter file (116,198 registrants). They serve as the design
+// pilot; the published edition will cover all 159 counties.
+const total = 116198
+const active = 105228
+const inactive = 10970
+
+const race = [
+  { label: 'Black', count: 62190 },
+  { label: 'White', count: 41392 },
+  { label: 'Other', count: 6213 },
+  { label: 'Hispanic / Latino', count: 2182 },
+  { label: 'Asian / Pacific Islander', count: 1705 },
+  { label: 'Unknown', count: 1419 },
+  { label: 'American Indian', count: 1097 },
+]
+
+const age = [
+  { label: '18–24', count: 10497 },
+  { label: '25–34', count: 22195 },
+  { label: '35–44', count: 19801 },
+  { label: '45–54', count: 17101 },
+  { label: '55–64', count: 17469 },
+  { label: '65+', count: 29135 },
+]
+
+const maxRace = Math.max(...race.map((r) => r.count))
+const maxAge = Math.max(...age.map((a) => a.count))
+const pct = (n: number) => ((n / total) * 100).toFixed(1)
+const fmt = new Intl.NumberFormat('en-US')
 ---
 
-<Layout title="Registered Voter Demographics">
-  <h1 class="text-2xl font-bold">Registered Voter Demographics</h1>
-  <p class="mt-2 text-gray-600">Data coming soon.</p>
+<Layout
+  title="Registered Voter Demographics"
+  description="Race, age, and registration status of Georgia’s registered electorate, county by county."
+>
+  <header class="reveal max-w-3xl">
+    <p class="kicker text-accent">Chapter 03 · Sample preview</p>
+    <h1 class="display-opt mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+      Registered Voter Demographics
+    </h1>
+    <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2 sm:text-xl">
+      Who is on Georgia&rsquo;s rolls. The pilot county is Bibb:
+      {fmt.format(total)} registrants as of the February 2026 voter file —
+      {fmt.format(active)} active and {fmt.format(inactive)} inactive.
+    </p>
+  </header>
+
+  <div class="reveal-late mt-12 grid gap-16 lg:grid-cols-2 lg:gap-10">
+    <section>
+      <div class="rule-headline flex items-baseline justify-between pt-4">
+        <p class="kicker text-ink-2">Bibb County · by race</p>
+        <p class="kicker text-ink-2">Pilot data</p>
+      </div>
+      <div class="mt-6 overflow-x-auto">
+        <table class="table-report">
+          <thead>
+            <tr>
+              <th>Race</th>
+              <th class="num">Registered</th>
+              <th class="num">Share</th>
+              <th class="w-1/3"><span class="sr-only">Chart</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              race.map(({ label, count }) => (
+                <tr>
+                  <td class="font-serif text-base font-semibold">{label}</td>
+                  <td class="num">{fmt.format(count)}</td>
+                  <td class="num font-semibold">{pct(count)}%</td>
+                  <td>
+                    <span class="databar" style={`width: ${(count / maxRace) * 100}%`} />
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="rule-headline flex items-baseline justify-between pt-4">
+        <p class="kicker text-ink-2">Bibb County · by age</p>
+        <p class="kicker text-ink-2">Pilot data</p>
+      </div>
+      <div class="mt-6 overflow-x-auto">
+        <table class="table-report">
+          <thead>
+            <tr>
+              <th>Age</th>
+              <th class="num">Registered</th>
+              <th class="num">Share</th>
+              <th class="w-1/3"><span class="sr-only">Chart</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              age.map(({ label, count }) => (
+                <tr>
+                  <td class="font-serif text-base font-semibold">{label}</td>
+                  <td class="num">{fmt.format(count)}</td>
+                  <td class="num font-semibold">{pct(count)}%</td>
+                  <td>
+                    <span class="databar" style={`width: ${(count / maxAge) * 100}%`} />
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <p class="mt-10 max-w-[70ch] font-sans text-xs leading-relaxed text-ink-2">
+    Aggregates computed from the Bibb County voter file dated Feb. 3, 2026, as
+    published under Georgia&rsquo;s open records law. Race is self-reported at
+    registration; age is derived from birth year. The published edition will
+    cover all 159 counties with statewide rollups.
+  </p>
 </Layout>

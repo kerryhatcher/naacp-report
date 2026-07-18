@@ -4,9 +4,19 @@ import { href } from '../lib/url'
 ---
 
 <Layout title="Page Not Found">
-  <h1 class="text-2xl font-bold">Page not found</h1>
-  <p class="mt-2">
-    That page doesn't exist.
-    <a class="text-blue-600 underline" href={href('/')}>Back to the report</a>.
-  </p>
+  <div class="reveal max-w-3xl">
+    <p class="kicker text-accent">Error 404</p>
+    <h1 class="display-opt mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+      This page isn&rsquo;t in the record.
+    </h1>
+    <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2">
+      The address may have changed as the report is assembled.
+      <a
+        class="text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent"
+        href={href('/')}
+      >
+        Return to the front page
+      </a>.
+    </p>
+  </div>
 </Layout>
